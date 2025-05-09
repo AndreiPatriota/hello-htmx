@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@2.0.4"
+      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+      crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="assets/styles/output.css" />
+
+    <title>Brincando com htmx</title>
+  </head>
+  <body>
+    <header
+      hx-boost="true"
+      class="flex justify-between items-center p-4 bg-gray-800 text-white">
+      <h1 class="text-3xl">HTMX Finanças</h1>
+      <nav class="space-x-4 hidden md:block">
+        <a href="/" class="hover:text-amber-400 text-xl">Home</a>
+        <a href="/sobre" class="hover:text-amber-400 text-xl">Sobre</a>
+      </nav>
+
+      <button
+        class="md:hidden text-3xl hover:text-amber-400 hover:cursor-pointer"
+        hx-on:click="const nav = htmx.find('#mobile-nav');
+                     htmx.toggleClass(nav, 'hidden');">
+        &#9776;
+      </button>
+
+      <nav
+        class="absolute top-[60px] left-0 w-full bg-gray-800 text-white p-4 hidden flex-col justify-center items-center space-y-4"
+        id="mobile-nav">
+        <a href="/" class="block hover:text-amber-400 text-xl">Home</a>
+        <a href="/sobre" class="block hover:text-amber-400 text-xl">Sobre</a>
+      </nav>
+    </header>
+
+    <div id="main" class="container mx-auto p-4">{{template "main" .}}</div>
+  </body>
+</html>

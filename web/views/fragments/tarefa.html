@@ -1,0 +1,32 @@
+<li
+  id="tarefa-{{ .ID }}"
+  class="border rounded-2xl w-[350px] bg-amber-500 list-none">
+  <h3 class="text-center text-white font-bold">{{ .Titulo }}</h3>
+  <section id="body" class="flex justify-between items-center p-4">
+    <p>{{ .Descricao }}</p>
+    {{ if .Concluida }}
+    <input
+      type="checkbox"
+      checked
+      hx-patch="/tarefas/{{.ID}}"
+      hx-target="#tarefas-afazer"
+      hx-swap="afterbegin"
+      hx-on::after-request="
+                      const tarefasConcluidas= htmx.find('#tarefas-concluidas');
+                      const estaTarefa = htmx.find('#tarefa-{{ .ID }}');
+                      tarefasConcluidas.scrollTop = 0;
+                      htmx.remove(estaTarefa);" />
+    {{ else }}
+    <input
+      type="checkbox"
+      hx-patch="/tarefas/{{.ID}}"
+      hx-target="#tarefas-concluidas"
+      hx-swap="afterbegin"
+      hx-on::after-request="
+                      const tarefasAfazer= htmx.find('#tarefas-afazer');
+                      const estaTarefa = htmx.find('#tarefa-{{ .ID }}');
+                      tarefasAfazer.scrollTop = 0;
+                      htmx.remove(estaTarefa);" />
+    {{ end }}
+  </section>
+</li>

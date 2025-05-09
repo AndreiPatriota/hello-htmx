@@ -1,0 +1,54 @@
+{{define "main"}}
+<main>
+  <section id="form-add-tarefa">
+    <form
+      id="add-tarefa"
+      hx-post="/tarefas"
+      hx-swap="afterbegin"
+      hx-target="#tarefas-afazer"
+      hx-on::after-request="this.reset()"
+      class="w-[350px] mx-auto border-2 rounded-xl shadow p-6 space-y-5">
+      <label for="titulo" class="mx-auto flex justify-between items-center"
+        >Título:
+        <input type="text" id="titulo" name="titulo" class="border rounded" />
+      </label>
+
+      <label for="descricao" class="mx-auto flex justify-between items-center"
+        >Descrição:
+        <input
+          type="text"
+          id="descricao"
+          name="descricao"
+          class="border rounded"
+      /></label>
+
+      <div class="flex justify-between items-center space-x-2">
+        <button
+          type="submit"
+          class="border rounded w-[150px] cursor-pointer bg-gray-800 text-white">
+          Salvar
+        </button>
+        <button
+          type="reset"
+          class="border rounded w-[150px] cursor-pointer bg-white text-gray-800">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section
+    id="lista-tarefas"
+    hx-get="/tarefas"
+    hx-trigger="load"
+    class="flex justify-center items-center space-x-5 mt-10">
+    >
+    <ul>
+      <div id="tarefas-afazer" class="flex flex-col space-y-2"></div>
+    </ul>
+    <ul>
+      <div id="tarefas-concluidas" class="flex flex-col space-y-2"></div>
+    </ul>
+  </section>
+</main>
+{{end}}
