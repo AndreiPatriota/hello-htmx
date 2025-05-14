@@ -19,10 +19,25 @@ func renderPage(pageName string, w http.ResponseWriter) {
 	templ.Execute(w, nil)
 }
 
+<<<<<<< Updated upstream
 func renderFragment(fragmentName string, w http.ResponseWriter, data any) {
 	templ := template.Must(template.ParseFiles(fmt.Sprintf("web/views/fragments/%s.html", fragmentName)))
+=======
+func sendMutipleFragment(w http.ResponseWriter, data any, fragmentNames ...string) {
+	fragmentPaths := make([]string, len(fragmentNames))
+	for _, fragmentName := range fragmentNames {
+		fragmentPaths = append(fragmentPaths, fmt.Sprintf("web/views/fragments/%s.html", fragmentName))
+	}
+>>>>>>> Stashed changes
 
+	templ := template.Must(template.ParseFiles(fragmentPaths...))
 	templ.Execute(w, data)
+}
+
+func sendFragment(w http.ResponseWriter, data any, fragmentName string) {
+	templ := template.Must(template.ParseFiles(fragmentName))
+
+	templ.ExecuteTemplate(w, fragmentName, data)
 }
 
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
@@ -49,10 +64,16 @@ func PostTarefas(w http.ResponseWriter, r *http.Request) {
 	}
 	models.DB.Create(novaTarefa)
 
+<<<<<<< Updated upstream
 	// renderFragment("tarefa", w, novaTarefa)
 	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
 
 	templ.Execute(w, novaTarefa)
+=======
+	// sendFragment(w, novaTarefa, "tarefa")
+	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
+	templ.ExecuteTemplate(w, "tarefa", novaTarefa)
+>>>>>>> Stashed changes
 }
 
 func GetTarefas(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +87,14 @@ func GetTarefas(w http.ResponseWriter, r *http.Request) {
 		Tarefas: tarefas,
 	}
 
+<<<<<<< Updated upstream
 	renderFragment("tarefas", w, data)
+=======
+	templ := template.Must(template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefa.html"))
+	templ.ExecuteTemplate(w, "tarefas", data)
+
+	// sendMutipleFragment(w, data, "tarefas", "tarefa")
+>>>>>>> Stashed changes
 }
 
 func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
@@ -82,5 +110,11 @@ func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
 	tarefa.Concluida = !tarefa.Concluida
 	models.DB.Save(&tarefa)
 
+<<<<<<< Updated upstream
 	renderFragment("tarefa", w, tarefa)
+=======
+	// sendFragment(w, tarefaTogada, "tarefa")
+	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
+	templ.ExecuteTemplate(w, "tarefa", tarefaTogada)
+>>>>>>> Stashed changes
 }

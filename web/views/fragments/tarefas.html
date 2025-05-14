@@ -1,4 +1,6 @@
+{{ define "tarefas" }}
 <div id="tarefas-afazer" hx-select-oob="true" class="flex flex-col space-y-2">
+<<<<<<< Updated upstream
   {{ range .Tarefas }} {{if not .Concluida}}
   <li
     id="tarefa-{{ .ID }}"
@@ -20,12 +22,17 @@
     </section>
   </li>
   {{ end}} {{ end }}
+=======
+  {{ range .Tarefas }} {{ if not .Concluida }} {{ template "tarefa" . }} {{
+  end}} {{ end }}
+>>>>>>> Stashed changes
 </div>
 
 <div
   id="tarefas-concluidas"
   hx-select-oob="true"
   class="flex flex-col space-y-2">
+<<<<<<< Updated upstream
   {{ range .Tarefas }} {{if .Concluida}}
   <li
     id="tarefa-{{ .ID }}"
@@ -74,3 +81,9 @@
   </section>
 </li>
 {{end}} -->
+=======
+  {{ range .Tarefas }} {{ if .Concluida }} {{ template "tarefa" . }} {{ end }}
+  {{ end }}
+</div>
+{{ end }}
+>>>>>>> Stashed changes
