@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -19,16 +20,11 @@ func renderPage(pageName string, w http.ResponseWriter) {
 	templ.Execute(w, nil)
 }
 
-<<<<<<< Updated upstream
-func renderFragment(fragmentName string, w http.ResponseWriter, data any) {
-	templ := template.Must(template.ParseFiles(fmt.Sprintf("web/views/fragments/%s.html", fragmentName)))
-=======
 func sendMutipleFragment(w http.ResponseWriter, data any, fragmentNames ...string) {
 	fragmentPaths := make([]string, len(fragmentNames))
 	for _, fragmentName := range fragmentNames {
 		fragmentPaths = append(fragmentPaths, fmt.Sprintf("web/views/fragments/%s.html", fragmentName))
 	}
->>>>>>> Stashed changes
 
 	templ := template.Must(template.ParseFiles(fragmentPaths...))
 	templ.Execute(w, data)
@@ -64,16 +60,9 @@ func PostTarefas(w http.ResponseWriter, r *http.Request) {
 	}
 	models.DB.Create(novaTarefa)
 
-<<<<<<< Updated upstream
-	// renderFragment("tarefa", w, novaTarefa)
-	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
-
-	templ.Execute(w, novaTarefa)
-=======
 	// sendFragment(w, novaTarefa, "tarefa")
 	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
 	templ.ExecuteTemplate(w, "tarefa", novaTarefa)
->>>>>>> Stashed changes
 }
 
 func GetTarefas(w http.ResponseWriter, r *http.Request) {
@@ -87,34 +76,33 @@ func GetTarefas(w http.ResponseWriter, r *http.Request) {
 		Tarefas: tarefas,
 	}
 
-<<<<<<< Updated upstream
-	renderFragment("tarefas", w, data)
-=======
-	templ := template.Must(template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefa.html"))
+	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefa.html"))
+	
+	templ, err := template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefa.html")
+	if err != nil {
+		log.Println("Erro ao carregar templates:", err)
+		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
+		return
+	}
 	templ.ExecuteTemplate(w, "tarefas", data)
 
 	// sendMutipleFragment(w, data, "tarefas", "tarefa")
->>>>>>> Stashed changes
 }
 
 func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	var tarefa models.Tarefa
-	result := models.DB.First(&tarefa, id)
+	var tarefaTogada models.Tarefa
+	result := models.DB.First(&tarefaTogada, id)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
 		return
 	}
 
-	tarefa.Concluida = !tarefa.Concluida
-	models.DB.Save(&tarefa)
+	tarefaTogada.Concluida = !tarefaTogada.Concluida
+	models.DB.Save(&tarefaTogada)
 
-<<<<<<< Updated upstream
-	renderFragment("tarefa", w, tarefa)
-=======
 	// sendFragment(w, tarefaTogada, "tarefa")
 	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
 	templ.ExecuteTemplate(w, "tarefa", tarefaTogada)
->>>>>>> Stashed changes
 }
