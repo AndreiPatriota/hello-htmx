@@ -106,3 +106,18 @@ func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
 	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
 	templ.ExecuteTemplate(w, "tarefa", tarefaTogada)
 }
+
+func DeleteTarefasId(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	var tarefa models.Tarefa
+	result := models.DB.First(&tarefa, id)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
+		return
+	}
+
+	models.DB.Delete(&tarefa)
+
+	w.WriteHeader(http.StatusNoContent)
+}

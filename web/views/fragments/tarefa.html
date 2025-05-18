@@ -30,5 +30,20 @@
                       htmx.remove(estaTarefa);" />
     {{ end }}
   </section>
+  <footer class="flex justify-between items-center p-4">
+    <button><i class="material-icons">edit</i></button>
+    <button
+      hx-delete="/tarefas/{{ .ID }}"
+      hx-swap="none"
+      hx-on::before-request="
+                      const tarefasAfazer= htmx.find('#tarefas-afazer');
+                      const tarefasConcluidas= htmx.find('#tarefas-concluidas');
+                      const estaTarefa = htmx.find('#tarefa-{{ .ID }}');
+                      tarefasAfazer.scrollTop = 0;
+                      tarefasConcluidas.scrollTop = 0;
+                      htmx.remove(estaTarefa);">
+      <i class="material-icons">delete</i>
+    </button>
+  </footer>
 </li>
 {{ end }}
