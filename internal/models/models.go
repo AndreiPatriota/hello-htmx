@@ -1,9 +1,9 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
-  )
+	"gorm.io/gorm"
+)
   
 
 type Tarefa struct {
@@ -13,14 +13,14 @@ type Tarefa struct {
 	Concluida bool
 }
 
-var DB *gorm.DB
+var db *gorm.DB
 func InitDb() {
-	db, err := gorm.Open(sqlite.Open("./internal/models/db.db"), &gorm.Config{})
+	database, err := gorm.Open(sqlite.Open("./internal/models/db.db"), &gorm.Config{})
 	if err != nil {
 		panic("Probelma na conexão com o Banco!")
 	}
 
-	db.AutoMigrate(&Tarefa{})
+	database.AutoMigrate(&Tarefa{})
 
-	DB = db
+	db = database
 }

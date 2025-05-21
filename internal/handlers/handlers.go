@@ -1,40 +1,14 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/AndreiPatriota/hello-htmx/internal/models"
 	"github.com/go-chi/chi/v5"
-	"gorm.io/gorm"
 )
 
-
-func renderPage(pageName string, w http.ResponseWriter) {
-	templ := template.Must(template.ParseFiles("web/views/_layout.html", fmt.Sprintf("web/views/%s.html", pageName)))
-
-	templ.Execute(w, nil)
-}
-
-// func sendMutipleFragment(w http.ResponseWriter, data any, fragmentNames ...string) {
-// 	fragmentPaths := make([]string, len(fragmentNames))
-// 	for _, fragmentName := range fragmentNames {
-// 		fragmentPaths = append(fragmentPaths, fmt.Sprintf("web/views/fragments/%s.html", fragmentName))
-// 	}
-
-// 	templ := template.Must(template.ParseFiles(fragmentPaths...))
-// 	templ.Execute(w, data)
-// }
-
-// func sendFragment(w http.ResponseWriter, data any, fragmentName string) {
-// 	templ := template.Must(template.ParseFiles(fragmentName))
-
-// 	templ.ExecuteTemplate(w, fragmentName, data)
-// }
 
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
 	renderPage("home", w)
@@ -53,118 +27,123 @@ func PostTarefas(w http.ResponseWriter, r *http.Request) {
 	titulo := r.FormValue("titulo")
 	descricao := r.FormValue("descricao")
 
-	novaTarefa := &models.Tarefa{
+	novaTarefa := models.Tarefa{
 		Titulo:   titulo,
 		Descricao: descricao,
 		Concluida: false,
 	}
-	models.DB.Create(novaTarefa)
 
-	// sendFragment(w, novaTarefa, "tarefa")
-	templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
-	templ.ExecuteTemplate(w, "tarefas-id", novaTarefa)
+	if err := models.CreateTarefa(novaTarefa); err != nil {
+		log.Println("Erro ao criar tarefa:", err)
+		http.Error(w, "Erro ao criar tarefa", http.StatusInternalServerError)
+		return
+	}
+
+	sendFragments(w, novaTarefa, "tarefas-id")
 }
 
 func GetTarefas(w http.ResponseWriter, r *http.Request) {
-	var tarefas []models.Tarefa
-
-	models.DB.Find(&tarefas)
+	tarefas, err := models.RetrieveTarefas()
+	if err != nil {
+		log.Println("Erro ao carregar tarefas:", err)
+		http.Error(w, "Erro ao carregar tarefas", http.StatusInternalServerError)
+		return
+	}
 
 	data := struct {
 		Tarefas []models.Tarefa
 	} {
 		Tarefas: tarefas,
 	}
-	templ, err := template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefas-id.html")
-	if err != nil {
-		log.Println("Erro ao carregar templates:", err)
-		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
-		return
-	}
-	templ.ExecuteTemplate(w, "tarefas", data)
-
+	
+	sendFragments(w, data, "tarefas", "tarefas-id")
 }
 func GetTarefasId(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	var tarefa models.Tarefa
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
 
-	result := models.DB.First(&tarefa, id)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		log.Println("Erro ao carregar tarefa:", result.Error)
+	tarefa, err := models.RetrieveTarefaById(id)
+	if err != nil {
+		log.Println("Erro ao carregar tarefa:", err)
 		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
 		return
 	}
 
-	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
-	templ, err := template.ParseFiles("web/views/fragments/tarefas-id.html")
-	if err != nil {
-		log.Println("Erro ao carregar templates:", err)
-		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
-		return
-	}
-	templ.ExecuteTemplate(w, "tarefas-id", tarefa)
+	sendFragments(w, tarefa, "tarefas-id")
 }
 
 func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	var tarefaTogada models.Tarefa
-	result := models.DB.First(&tarefaTogada, id)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	
+	tarefa, err := models.RetrieveTarefaById(id)
+	if err != nil {
+		log.Println("Erro ao carregar tarefa:", err)
 		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
 		return
 	}
 
-	tarefaTogada.Concluida = !tarefaTogada.Concluida
-	models.DB.Save(&tarefaTogada)
+	tarefa.Concluida = !tarefa.Concluida
+	
+	if err := models.UpdateTarefa(tarefa); err != nil {
+		log.Println("Erro ao atualizar tarefa:", err)
+		http.Error(w, "Erro ao atualizar tarefa", http.StatusInternalServerError)
+		return
+	}
 
-	templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
-	templ.ExecuteTemplate(w, "tarefas-id", tarefaTogada)
+	sendFragments(w, tarefa, "tarefas-id")
 }
 
 func DeleteTarefasId(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	var tarefa models.Tarefa
-	result := models.DB.First(&tarefa, id)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	models.DB.Delete(&tarefa)
+	
+	if err := models.DeleteTarefa(id); err != nil {
+		log.Println("Erro ao deletar tarefa:", err)
+		http.Error(w, "Erro ao deletar tarefa", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func GetTarefasIdEdita(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	var tarefa models.Tarefa
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
 
-	result := models.DB.First(&tarefa, id)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		log.Println("Erro ao carregar tarefa:", result.Error)
+	tarefa, err := models.RetrieveTarefaById(id)
+	if err != nil {
+		log.Println("Erro ao carregar tarefa:", err)
 		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
 		return
 	}
 
-	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefa-id-edita.html"))
-	templ, err := template.ParseFiles("web/views/fragments/tarefas-id-edita.html")
-	if err != nil {
-		log.Println("Erro ao carregar templates:", err)
-		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
-		return
-	}
-	templ.ExecuteTemplate(w, "tarefas-id-edita", tarefa)
+	sendFragments(w, tarefa, "tarefas-id-edita")
 }
 
 func PutTarefasId(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
-	var tarefa models.Tarefa
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
 
-	result := models.DB.First(&tarefa, id)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		log.Println("Erro ao carregar tarefa:", result.Error)
+	tarefa, err := models.RetrieveTarefaById(id)
+	if err != nil {
+		log.Println("Erro ao carregar tarefa:", err)
 		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
 		return
 	}
@@ -174,20 +153,14 @@ func PutTarefasId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	titulo := r.FormValue("titulo")
-	descricao := r.FormValue("descricao")
 
-	tarefa.Titulo = titulo
-	tarefa.Descricao = descricao
-
-	models.DB.Save(&tarefa)
-
-	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
-	templ, err := template.ParseFiles("web/views/fragments/tarefas-id.html")
-	if err != nil {
-		log.Println("Erro ao carregar templates:", err)
-		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
+	tarefa.Titulo = r.FormValue("titulo")
+	tarefa.Descricao = r.FormValue("descricao")
+	if err := models.UpdateTarefa(tarefa); err != nil {
+		log.Println("Erro ao atualizar tarefa:", err)
+		http.Error(w, "Erro ao atualizar tarefa", http.StatusInternalServerError)
 		return
 	}
-	templ.ExecuteTemplate(w, "tarefas-id", tarefa)
+
+	sendFragments(w, tarefa, "tarefas-id")
 }
