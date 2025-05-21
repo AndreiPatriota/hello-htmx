@@ -1,0 +1,38 @@
+{{ define "tarefas-id-edita" }}
+<form
+  hx-put="/tarefas/{{ .ID }}"
+  hx-target="#tarefa-{{ .ID }}"
+  hx-swap="outerHTML"
+  class="mx-auto">
+  <section class="flex flex-col justify-center space-y-4">
+    <div class="text-center mb-20">
+      <input
+        type="text"
+        name="titulo"
+        id="titulo"
+        value="{{ .Titulo }}"
+        class="text-center text-white font-bold border-2" />
+    </div>
+    <div class="ml-9">
+      <input
+        type="text"
+        name="descricao"
+        id="descricao"
+        value="{{ .Descricao }}"
+        class="text-center text-white font-bold border-2" />
+    </div>
+  </section>
+
+  <footer class="flex justify-between items-center p-4">
+    <button class="hover:cursor-pointer" type="submit">
+      <i class="material-icons">check</i>
+    </button>
+    <button
+      class="hover:cursor-pointer"
+      hx-get="/tarefas/{{ .ID }}"
+      hx-target="#tarefa-{{ .ID }}">
+      <i class="material-icons">cancel</i>
+    </button>
+  </footer>
+</form>
+{{end}}

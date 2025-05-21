@@ -26,6 +26,9 @@ func RegisterRoutes() *chi.Mux {
 		r.Post("/", handlers.PostTarefas)
 	})
 	r.Route("/tarefas/{id}", func(r chi.Router) {
+		r.Get("/edita", handlers.GetTarefasIdEdita)
+		r.Get("/", handlers.GetTarefasId)
+		r.Put("/", handlers.PutTarefasId)
 		r.Patch("/", handlers.PatchTarefasId)
 		r.Delete("/", handlers.DeleteTarefasId)
 	})

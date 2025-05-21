@@ -20,21 +20,21 @@ func renderPage(pageName string, w http.ResponseWriter) {
 	templ.Execute(w, nil)
 }
 
-func sendMutipleFragment(w http.ResponseWriter, data any, fragmentNames ...string) {
-	fragmentPaths := make([]string, len(fragmentNames))
-	for _, fragmentName := range fragmentNames {
-		fragmentPaths = append(fragmentPaths, fmt.Sprintf("web/views/fragments/%s.html", fragmentName))
-	}
+// func sendMutipleFragment(w http.ResponseWriter, data any, fragmentNames ...string) {
+// 	fragmentPaths := make([]string, len(fragmentNames))
+// 	for _, fragmentName := range fragmentNames {
+// 		fragmentPaths = append(fragmentPaths, fmt.Sprintf("web/views/fragments/%s.html", fragmentName))
+// 	}
 
-	templ := template.Must(template.ParseFiles(fragmentPaths...))
-	templ.Execute(w, data)
-}
+// 	templ := template.Must(template.ParseFiles(fragmentPaths...))
+// 	templ.Execute(w, data)
+// }
 
-func sendFragment(w http.ResponseWriter, data any, fragmentName string) {
-	templ := template.Must(template.ParseFiles(fragmentName))
+// func sendFragment(w http.ResponseWriter, data any, fragmentName string) {
+// 	templ := template.Must(template.ParseFiles(fragmentName))
 
-	templ.ExecuteTemplate(w, fragmentName, data)
-}
+// 	templ.ExecuteTemplate(w, fragmentName, data)
+// }
 
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
 	renderPage("home", w)
@@ -61,8 +61,8 @@ func PostTarefas(w http.ResponseWriter, r *http.Request) {
 	models.DB.Create(novaTarefa)
 
 	// sendFragment(w, novaTarefa, "tarefa")
-	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
-	templ.ExecuteTemplate(w, "tarefa", novaTarefa)
+	templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
+	templ.ExecuteTemplate(w, "tarefas-id", novaTarefa)
 }
 
 func GetTarefas(w http.ResponseWriter, r *http.Request) {
@@ -75,10 +75,7 @@ func GetTarefas(w http.ResponseWriter, r *http.Request) {
 	} {
 		Tarefas: tarefas,
 	}
-
-	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefa.html"))
-	
-	templ, err := template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefa.html")
+	templ, err := template.ParseFiles("web/views/fragments/tarefas.html", "web/views/fragments/tarefas-id.html")
 	if err != nil {
 		log.Println("Erro ao carregar templates:", err)
 		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
@@ -86,7 +83,26 @@ func GetTarefas(w http.ResponseWriter, r *http.Request) {
 	}
 	templ.ExecuteTemplate(w, "tarefas", data)
 
-	// sendMutipleFragment(w, data, "tarefas", "tarefa")
+}
+func GetTarefasId(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	var tarefa models.Tarefa
+
+	result := models.DB.First(&tarefa, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		log.Println("Erro ao carregar tarefa:", result.Error)
+		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
+		return
+	}
+
+	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
+	templ, err := template.ParseFiles("web/views/fragments/tarefas-id.html")
+	if err != nil {
+		log.Println("Erro ao carregar templates:", err)
+		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
+		return
+	}
+	templ.ExecuteTemplate(w, "tarefas-id", tarefa)
 }
 
 func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
@@ -102,9 +118,8 @@ func PatchTarefasId(w http.ResponseWriter, r *http.Request) {
 	tarefaTogada.Concluida = !tarefaTogada.Concluida
 	models.DB.Save(&tarefaTogada)
 
-	// sendFragment(w, tarefaTogada, "tarefa")
-	templ := template.Must(template.ParseFiles("web/views/fragments/tarefa.html"))
-	templ.ExecuteTemplate(w, "tarefa", tarefaTogada)
+	templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
+	templ.ExecuteTemplate(w, "tarefas-id", tarefaTogada)
 }
 
 func DeleteTarefasId(w http.ResponseWriter, r *http.Request) {
@@ -120,4 +135,59 @@ func DeleteTarefasId(w http.ResponseWriter, r *http.Request) {
 	models.DB.Delete(&tarefa)
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func GetTarefasIdEdita(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	var tarefa models.Tarefa
+
+	result := models.DB.First(&tarefa, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		log.Println("Erro ao carregar tarefa:", result.Error)
+		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
+		return
+	}
+
+	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefa-id-edita.html"))
+	templ, err := template.ParseFiles("web/views/fragments/tarefas-id-edita.html")
+	if err != nil {
+		log.Println("Erro ao carregar templates:", err)
+		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
+		return
+	}
+	templ.ExecuteTemplate(w, "tarefas-id-edita", tarefa)
+}
+
+func PutTarefasId(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	var tarefa models.Tarefa
+
+	result := models.DB.First(&tarefa, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		log.Println("Erro ao carregar tarefa:", result.Error)
+		http.Error(w, "Tarefa não encontrada", http.StatusNotFound)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Não entendi os dados =/", http.StatusBadRequest)
+		return
+	}
+
+	titulo := r.FormValue("titulo")
+	descricao := r.FormValue("descricao")
+
+	tarefa.Titulo = titulo
+	tarefa.Descricao = descricao
+
+	models.DB.Save(&tarefa)
+
+	// templ := template.Must(template.ParseFiles("web/views/fragments/tarefas-id.html"))
+	templ, err := template.ParseFiles("web/views/fragments/tarefas-id.html")
+	if err != nil {
+		log.Println("Erro ao carregar templates:", err)
+		http.Error(w, "Erro ao carregar templates", http.StatusInternalServerError)
+		return
+	}
+	templ.ExecuteTemplate(w, "tarefas-id", tarefa)
 }
