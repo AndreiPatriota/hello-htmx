@@ -10,6 +10,11 @@ import (
 )
 
 
+func GetIndexPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Location", "/home")
+	w.WriteHeader(http.StatusFound)
+}
+
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
 	renderPage("home", w)
 }
@@ -27,7 +32,7 @@ func PostTarefas(w http.ResponseWriter, r *http.Request) {
 	titulo := r.FormValue("titulo")
 	descricao := r.FormValue("descricao")
 
-	novaTarefa := models.Tarefa{
+	novaTarefa := &models.Tarefa{
 		Titulo:   titulo,
 		Descricao: descricao,
 		Concluida: false,

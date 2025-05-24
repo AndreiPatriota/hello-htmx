@@ -23,6 +23,9 @@
       <nav class="space-x-4 hidden md:block">
         <a href="/" class="hover:text-amber-400 text-xl">Home</a>
         <a href="/sobre" class="hover:text-amber-400 text-xl">Sobre</a>
+        <a href="/doqwndiondoiqwnd" class="hover:text-amber-400 text-xl"
+          >laga</a
+        >
       </nav>
 
       <button
@@ -41,5 +44,17 @@
     </header>
 
     <div id="main" class="container mx-auto p-4">{{template "main" .}}</div>
+
+    <script>
+      document
+        .querySelector('body')
+        .addEventListener('htmx:responseError', function (event) {
+          if (event.detail.xhr.status === 404) {
+            htmx.ajax('GET', '/error-404-htmx', {
+              target: 'body'
+            });
+          }
+        });
+    </script>
   </body>
 </html>

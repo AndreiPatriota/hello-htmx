@@ -18,7 +18,8 @@ func RegisterRoutes() *chi.Mux {
 	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("web/public"))))
 
 	// Routes
-	r.Get("/", handlers.GetHomePage)
+	r.Get("/", handlers.GetIndexPage)
+	r.Get("/home", handlers.GetHomePage)
 	r.Get("/sobre", handlers.GetSobrePage)
 
 	r.Route("/tarefas", func(r chi.Router) {
@@ -32,6 +33,10 @@ func RegisterRoutes() *chi.Mux {
 		r.Patch("/", handlers.PatchTarefasId)
 		r.Delete("/", handlers.DeleteTarefasId)
 	})
+
+	r.Get("/error-404-htmx", handlers.NotFoundHtmx)
+
+	r.NotFound(handlers.NotFound)
 	
 	return r
 }

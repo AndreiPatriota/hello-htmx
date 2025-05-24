@@ -7,22 +7,23 @@
       hx-swap="afterbegin"
       hx-target="#tarefas-afazer"
       hx-on::after-request="this.reset()"
-      class="w-[350px] mx-auto border-2 rounded-xl shadow p-6 space-y-5">
-      <label for="titulo" class="mx-auto flex justify-between items-center"
-        >Título:
-        <input type="text" id="titulo" name="titulo" class="border rounded" />
-      </label>
+      class="w-[350px] mx-auto border-2 rounded-xl shadow p-6 space-y-4">
+      <section class="space-y-5">
+        <label for="titulo" class="mx-auto flex justify-between items-center"
+          >Título:
+          <input type="text" id="titulo" name="titulo" class="border rounded" />
+        </label>
+        <label for="descricao" class="mx-auto flex justify-between items-center"
+          >Descrição:
+          <input
+            type="text"
+            id="descricao"
+            name="descricao"
+            class="border rounded"
+        /></label>
+      </section>
 
-      <label for="descricao" class="mx-auto flex justify-between items-center"
-        >Descrição:
-        <input
-          type="text"
-          id="descricao"
-          name="descricao"
-          class="border rounded"
-      /></label>
-
-      <div class="flex justify-between items-center space-x-2">
+      <footer class="flex justify-between items-center space-x-2">
         <button
           type="submit"
           class="border rounded w-[150px] cursor-pointer bg-gray-800 text-white">
@@ -33,7 +34,7 @@
           class="border rounded w-[150px] cursor-pointer bg-white text-gray-800">
           Cancelar
         </button>
-      </div>
+      </footer>
     </form>
   </section>
 

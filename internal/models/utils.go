@@ -16,8 +16,8 @@ func RetrieveTarefaById(id int) (Tarefa, error) {
 	return tarefa, nil
 }
 
-func CreateTarefa(tarefa Tarefa) (error) {
-	if err := db.Create(&tarefa).Error; err != nil {
+func CreateTarefa(tarefa *Tarefa) (error) {
+	if err := db.Create(tarefa).Error; err != nil {
 		return err
 	}
 	return nil
