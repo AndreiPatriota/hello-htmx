@@ -8,10 +8,10 @@ import (
 )
 
 
-func renderPage(pageName string, w http.ResponseWriter) {
+func renderPage(pageName string, w http.ResponseWriter, data any) {
 	templ := template.Must(template.ParseFiles("web/views/_layout.html", fmt.Sprintf("web/views/%s.html", pageName)))
 
-	templ.Execute(w, nil)
+	templ.Execute(w, data)
 }
 
 func sendFragments(w http.ResponseWriter, data any, fragmentNames ...string) {

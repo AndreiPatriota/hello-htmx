@@ -16,11 +16,11 @@ func GetIndexPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
-	renderPage("home", w)
+	renderPage("home", w, nil)
 }
 
 func GetSobrePage(w http.ResponseWriter, r *http.Request) {
-	renderPage("sobre", w)
+	renderPage("sobre", w, nil)
 }
 
 func PostTarefas(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +44,7 @@ func PostTarefas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
 	sendFragments(w, novaTarefa, "tarefas-id")
 }
 
@@ -112,7 +113,6 @@ func DeleteTarefasId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	if err := models.DeleteTarefa(id); err != nil {
 		log.Println("Erro ao deletar tarefa:", err)
 		http.Error(w, "Erro ao deletar tarefa", http.StatusInternalServerError)

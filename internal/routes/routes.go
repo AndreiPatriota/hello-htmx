@@ -34,7 +34,8 @@ func RegisterRoutes() *chi.Mux {
 		r.Delete("/", handlers.DeleteTarefasId)
 	})
 
-	r.Get("/error-404-htmx", handlers.NotFoundHtmx)
+	r.Get("/error-404-htmx", handlers.HandleNotFoundHtmx)
+	r.Get("/error-500s-htmx/{mensagem}", handlers.HandleServerErrorsHtmx)
 
 	r.NotFound(handlers.NotFound)
 	

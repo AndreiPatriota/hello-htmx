@@ -23,9 +23,6 @@
       <nav class="space-x-4 hidden md:block">
         <a href="/" class="hover:text-amber-400 text-xl">Home</a>
         <a href="/sobre" class="hover:text-amber-400 text-xl">Sobre</a>
-        <a href="/doqwndiondoiqwnd" class="hover:text-amber-400 text-xl"
-          >laga</a
-        >
       </nav>
 
       <button
@@ -51,7 +48,13 @@
         .addEventListener('htmx:responseError', function (event) {
           if (event.detail.xhr.status === 404) {
             htmx.ajax('GET', '/error-404-htmx', {
-              target: 'body'
+              target: 'body',
+            });
+          }
+          if (event.detail.xhr.status >= 500) {
+            const mensagem = event.detail.xhr.responseText;
+            htmx.ajax('GET', `/error-500s-htmx/${mensagem}`, {
+              target: 'body',
             });
           }
         });
