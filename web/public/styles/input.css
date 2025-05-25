@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.form-add-tarefa {
+  @apply w-[350px] mx-auto border-2 rounded-xl shadow p-6 space-y-4;
+}

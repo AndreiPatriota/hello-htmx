@@ -4,10 +4,10 @@
     <form
       id="add-tarefa"
       hx-post="/tarefas"
-      hx-swap="afterbegin"
+      hx-swap="afterbegin swap:0.8s"
       hx-target="#tarefas-afazer"
       hx-on::after-request="this.reset()"
-      class="w-[350px] mx-auto border-2 rounded-xl shadow p-6 space-y-4">
+      class="form-add-tarefa">
       <section class="space-y-5">
         <label for="titulo" class="mx-auto flex justify-between items-center"
           >Título:
